@@ -69,8 +69,8 @@ Some of the checklists in this doc are for **C4 (🐺)** and some of them are fo
 - Join [C4 Discord](https://discord.gg/code4rena) to register
 - Submit findings [using the C4 form](https://code4rena.com/contests/2024-01-init-capital-invitational/submit)
 - [Read our guidelines for more details](https://docs.code4rena.com/roles/wardens)
-- Starts January 25, 2024 20:00 UTC 
-- Ends February 01, 2024 20:00 UTC 
+- Starts January 26, 2024 20:00 UTC 
+- Ends February 02, 2024 20:00 UTC 
 
 ## Automated Findings / Publicly Known Issues
 
