@@ -3,7 +3,7 @@
   - HM awards: 18,612 in USDC 
   - Analysis awards: $1,034 in USDC 
   - QA awards: $517 in USDC 
-  - Gas awards: $517 in USDC
+  - Gas & Bytecode Size* awards: $517 in USDC
   - Judge awards: $3,820 in USDC 
   - Scout awards: $500 USDC 
 - Join [C4 Discord](https://discord.gg/code4rena) to register
@@ -11,6 +11,8 @@
 - [Read our guidelines for more details](https://docs.code4rena.com/roles/wardens)
 - Starts January 26, 2024 20:00 UTC 
 - Ends February 02, 2024 20:00 UTC 
+
+*For this contest, we will be adding Bytecode Size award for Bytecode Size optimizations for reduction of `InitCore.sol` and `MarginTradingHook.sol` contracts, since they are close to reaching the bytecode size limit.
 
 ## Automated Findings / Publicly Known Issues
 
