@@ -1,64 +1,4 @@
-# ✨ So you want to run an audit
-
-This `README.md` contains a set of checklists for our audit collaboration.
-
-Your audit will use two repos: 
-- **an _audit_ repo** (this one), which is used for scoping your audit and for providing information to wardens
-- **a _findings_ repo**, where issues are submitted (shared with you after the audit) 
-
-Ultimately, when we launch the audit, this repo will be made public and will contain the smart contracts to be reviewed and all the information needed for audit participants. The findings repo will be made public after the audit report is published and your team has mitigated the identified issues.
-
-Some of the checklists in this doc are for **C4 (🐺)** and some of them are for **you as the audit sponsor (⭐️)**.
-
----
-
-# Audit setup
-
-## 🐺 C4: Set up repos
-- [ ] Create a new private repo named `YYYY-MM-sponsorname` using this repo as a template.
-- [ ] Rename this repo to reflect audit date (if applicable)
-- [ ] Rename auditt H1 below
-- [ ] Update pot sizes
-- [ ] Fill in start and end times in audit bullets below
-- [ ] Add link to submission form in audit details below
-- [ ] Add the information from the scoping form to the "Scoping Details" section at the bottom of this readme.
-- [ ] Add matching info to the Code4rena site
-- [ ] Add sponsor to this private repo with 'maintain' level access.
-- [ ] Send the sponsor contact the url for this repo to follow the instructions below and add contracts here. 
-- [ ] Delete this checklist.
-
-# Repo setup
-
-## ⭐️ Sponsor: Add code to this repo
-
-- [ ] Create a PR to this repo with the below changes:
-- [ ] Provide a self-contained repository with working commands that will build (at least) all in-scope contracts, and commands that will run tests producing gas reports for the relevant contracts.
-- [ ] Make sure your code is thoroughly commented using the [NatSpec format](https://docs.soliditylang.org/en/v0.5.10/natspec-format.html#natspec-format).
-- [ ] Please have final versions of contracts and documentation added/updated in this repo **no less than 48 business hours prior to audit start time.**
-- [ ] Be prepared for a 🚨code freeze🚨 for the duration of the audit — important because it establishes a level playing field. We want to ensure everyone's looking at the same code, no matter when they look during the audit. (Note: this includes your own repo, since a PR can leak alpha to our wardens!)
-
-
----
-
-## ⭐️ Sponsor: Edit this `README.md` file
-
-- [ ] Modify the contents of this `README.md` file. Describe how your code is supposed to work with links to any relevent documentation and any other criteria/details that the C4 Wardens should keep in mind when reviewing. (Here are two well-constructed examples: [Ajna Protocol](https://github.com/code-423n4/2023-05-ajna) and [Maia DAO Ecosystem](https://github.com/code-423n4/2023-05-maia))
-- [ ] Review the Gas award pool amount. This can be adjusted up or down, based on your preference - just flag it for Code4rena staff so we can update the pool totals across all comms channels.
-- [ ] Optional / nice to have: pre-record a high-level overview of your protocol (not just specific smart contract functions). This saves wardens a lot of time wading through documentation.
-- [ ] [This checklist in Notion](https://code4rena.notion.site/Key-info-for-Code4rena-sponsors-f60764c4c4574bbf8e7a6dbd72cc49b4#0cafa01e6201462e9f78677a39e09746) provides some best practices for Code4rena audits.
-
-## ⭐️ Sponsor: Final touches
-- [ ] Review and confirm the details in the section titled "Scoping details" and alert Code4rena staff of any changes.
-- [ ] Review and confirm the list of in-scope files in the `scope.txt` file in this directory.  Any files not listed as "in scope" will be considered out of scope for the purposes of judging, even if the file will be part of the deployed contracts.
-- [ ] Check that images and other files used in this README have been uploaded to the repo as a file and then linked in the README using absolute path (e.g. `https://github.com/code-423n4/yourrepo-url/filepath.png`)
-- [ ] Ensure that *all* links and image/file paths in this README use absolute paths, not relative paths
-- [ ] Check that all README information is in markdown format (HTML does not render on Code4rena.com)
-- [ ] Remove any part of this template that's not relevant to the final version of the README (e.g. instructions in brackets and italic)
-- [ ] Delete this checklist and all text above the line below when you're ready.
-
----
-
-# Init Capital Invitational audit details
+# INIT Capital Invitational audit details
 - Total Prize Pool: $25,000 in USDC 
   - HM awards: 18,612 in USDC 
   - Analysis awards: $1,034 in USDC 
@@ -80,88 +20,199 @@ Automated findings output for the audit can be found [here](https://github.com/c
 
 _Note for C4 wardens: Anything included in this `Automated Findings / Publicly Known Issues` section is considered a publicly known issue and is ineligible for awards._
 
-[ ⭐️ SPONSORS: Are there any known issues or risks deemed acceptable that shouldn't lead to a valid finding? If so, list them here. ]
+Known issues:
+- For Margin Trading Hook, it is possible that `burnTo` may block users from closing the position, so we plan to create a new collateral pool that will only allow only lending and no borrowing.
+- Wrapped LPs and new changes to PosManager no longer uses ERC721 `safeMint`, so it is possible for contracts to receive ERC721 even if it does not implement ERC721Holder.
+- Users can avoid paying flashloan fee (if set to non-zero) by atomically borrowing and then repaying in the same transaction.
+- `totalInterest` may slightly overestimate the actual interest accrual due to rounding up (in the order of wei).
+- In Margin Trading Hook, the difference between trigger price and limit price is capturable by MEV if the diff is large enough.
+- Stop loss and take profit orders in margin trading hook may not guarantee it gets executed if the premium is not enough.
+- Merchant Moe LP price is inflatable (increase).
 
 
 # Overview
 
-[ ⭐️ SPONSORS: add info here ]
+INIT Capital is a composable liquidity hook money market that allows any DeFi protocols to permissionlessly build liquidity hook plugins and borrow liquidity to execute various DeFi strategies from simple to complex strategies. Additionally, end users on INIT Capital have access to all hooks, which are yield generating strategies, in a few clicks without having to use and manage many accounts and positions on multiple DeFi applications. 
+
+More overview is provided in [the following document](https://docsend.com/view/mwwb5ptmyjkk86ih) (password: Audit)
+
+### Technical Overview
+
+INIT Key features include:
+- Multi-Silo Position: Each wallet address can manage multiple isolated positions, having a separate position id.
+- Flashloan 
+- Multicall: A batched sequence of actions executed through multicall. Users have the option to borrow first and collateralize later.
+- LP tokens as collateral by utilizing wrapped LPs.
+- Interest rate model.
+
+**InitCore** - The primary entrypoint for most interactions. Users can perform actions directly to each function or utilize multicall to batch several actions together. Key actions include:
+- mintTo: Depositing tokens and receiving shares in return.
+- burnTo: Burning tokens to redeem the underlying assets.
+- collateralize: Transferring the deposited tokens to collateralize a position.
+- decollateralize: Reversing the collateralization process.
+- borrow: Borrowing tokens out of the system
+- repay: Repaying borrowed tokens
+
+**LendingPool** - Manages the supply and the total debt share.
+
+**PosManager** - Manages each position, including the debt shares of each borrowed token, and also the collaterals
+
+**LiqIncentiveCalculator** - Handles liquidation incentive calculation. It is currently based on how unhealthy the position is.
+
+**MoneyMarketHook** - Hook implementation for regular money market actions: deposit, withdraw, borrow, repay.
+
+**WLp** - Wrapped LP contract (currently not in scope, since this is pending integration with certain DEXs). This should also handle reward calculations.
+
+**InitOracle** - Aggregate underlying oracle prices by using primary & secondary sources.
+
+**RiskManager** - Handles potential risk that may arise in the money market, for example, large price impact from having too much concentration of collateralization (currently handled by the introduction of debt ceiling per mode).
+
+NEW:
+**MarginTradingHook** - Hook implementation for margin trading actions. Some features include margin trading, stop loss, and take profit actions.
+
+**WLpMoeMasterChef** - Wrapped LP contract implementation for [Merchant Moe DEX](https://merchantmoe.com/) (with MasterChef staking contract).
+
+**MoeSwapHelper** - Helper contract for swapping tokens on Merchant Moe DEX.
+
+
+
+
+![flow](https://github.com/code-423n4/2023-12-initcapital/blob/main/resources/diagram_flow.png?raw=true)
 
 ## Links
 
-- **Previous audits:** 
-- **Documentation:**
-- **Website:**
-- **Twitter:** 
-- **Discord:** 
 
+- **Previous audits:** See [audits folder](https://github.com/init-capital/init-core-public/tree/master/audits)
+- **Documentation:** 
+  - Gitbook: https://init-capital.gitbook.io/
+  - Overview: https://docsend.com/view/mwwb5ptmyjkk86ih (password: Audit)
+- **Website:** https://init.capital/ 
+- **DApp**: https://app.init.capital/
+- **Twitter:** [https://twitter.com/InitCapital_](https://twitter.com/InitCapital_)
+- **Discord:** https://discord.gg/hW3YZSMzvv
 
 # Scope
 
-[ ⭐️ SPONSORS: add scoping and technical details here ]
+Part 1 scope: new contracts
+| Contract | SLOC | Purpose | 
+| ----------- | ----------- |  ----------- |
+| [contracts/wrapper/WLpMoeMasterChef.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/wrapper/WLpMoeMasterChef.sol) | 209 | Wrapped LP for Merchant Moe integration |
+| [contracts/hook/MarginTradingHook.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/hook/MarginTradingHook.sol) | 468 | Hook implementation for margin trading actions |
+| [contracts/common/InitErrors.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/common/Multicall.sol) | 58 (most lines are just trivial constants, which can be ignored) | Error library |
+| [contracts/helper/swap_helper/MoeSwapHelper.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/helper/swap_helper/MoeSwapHelper.sol) | 33 | Swap helper for Merchant Moe DEX |
+| [contracts/hook/BaseMappingIdHook.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/hook/BaseMappingIdHook.sol) | 21 | Base implementation for hook |
 
-- [ ] In the table format shown below, provide the name of each contract and:
-  - [ ] source lines of code (excluding blank lines and comments) in each *For line of code counts, we recommend running prettier with a 100-character line length, and using [cloc](https://github.com/AlDanial/cloc).* 
-  - [ ] external contracts called in each
-  - [ ] libraries used in each
 
-*List all files in scope in the table below (along with hyperlinks) -- and feel free to add notes here to emphasize areas of focus.*
+Part 2 scope: mitigation reviews + minor changes to the previous code4rena contest
 
-| Contract | SLOC | Purpose | Libraries used |  
-| ----------- | ----------- | ----------- | ----------- |
-| [contracts/folder/sample.sol](https://github.com/code-423n4/repo-name/blob/contracts/folder/sample.sol) | 123 | This contract does XYZ | [`@openzeppelin/*`](https://openzeppelin.com/contracts/) |
+| Contract | SLOC | Purpose | 
+| ----------- | ----------- | ----------- |
+| [contracts/common/library/UncheckedIncrement.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/common/library/UncheckedIncrement.sol) | 8 | Unchecked Increment for `uint` iterators | 
+| [contracts/common/AccessControlManager.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/common/AccessControlManager.sol) | 9 | Manage access controls | 
+| [contracts/common/UnderACM.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/common/UnderACM.sol) | 8 | Extensible contract for access control manager | 
+| [contracts/core/Config.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/core/Config.sol) | 106 | Config manager | 
+| [contracts/core/InitCore.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/core/InitCore.sol) | 423 | Main contract for most interactions to INIT | 
+| [contracts/core/LiqIncentiveCalculator.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/core/LiqIncentiveCalculator.sol) | 80 | Liquidation incentive calculation  | 
+| [contracts/core/PosManager.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/core/PosManager.sol) | 263 | Position manager  | 
+| [contracts/hook/MoneyMarketHook.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/hook/MoneyMarketHook.sol) | 180 | Hook for regular money market actions, for example, deposit, withdraw, borrow, repay  | 
+| [contracts/lending_pool/DoubleSlopeIRM.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/lending_pool/DoubleSlopeIRM.sol) | 29 | Interest rate model utilizing a 2-slope mechanism  | 
+| [contracts/lending_pool/LendingPool.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/lending_pool/LendingPool.sol) | 183 | ERC20 lending pool | 
+| [contracts/oracle/Api3OracleReader.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/oracle/Api3OracleReader.sol) | 55 | API3 oracle integration | 
+| [contracts/oracle/InitOracle.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/oracle/InitOracle.sol) | 77 | Oracle source manager contract | 
+| [contracts/risk_manager/RiskManager.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/risk_manager/RiskManager.sol) | 61 | Risk manager contract |
+| [contracts/helper/rebase_helper/mUSDUSDYHelper.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/helper/rebase_helper/mUSDUSDYHelper.sol) | 23 | Wrapper contract helper for wrapping/unwrapping mUSD to/from USDY |
+| [contracts/helper/rebase_helper/BaseRebaseHelper.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/helper/rebase_helper/BaseRebaseHelper.sol) | 11 | Base wrapper contract helper for wrapping/unwrapping rebase tokens |
+| [contracts/common/TransparentUpgradeableProxyReceiveETH.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/common/TransparentUpgradeableProxyReceiveETH.sol) | 9 | Transparent upgradeable proxy that allows receiving ETH at the proxy level to avoid out-of-gas errors |
+| [contracts/common/Multicall.sol](https://github.com/code-423n4/2024-01-initcapital/tree/main/contracts/common/Multicall.sol) | 20 | Extensible multicall base logic |
 
 ## Out of scope
 
-*List any files/contracts that are out of scope for this audit.*
-
+- `contracts/interfaces/*`
+- `contracts/mock/*`
+- `contracts/oracle/PythOracleReader.sol`
+- `tests/`
+- `contracts/helper/InitLens.sol`
+- `contracts/helper/MarginTradingLens.sol`
 # Additional Context
 
 - [ ] Describe any novel or unique curve logic or mathematical models implemented in the contracts
 - [ ] Please list specific ERC20 that your protocol is anticipated to interact with. Could be "any" (literally anything, fee on transfer tokens, ERC777 tokens and so forth) or a list of tokens you envision using on launch.
+  - No fee-on-transfer tokens
 - [ ] Please list specific ERC721 that your protocol is anticipated to interact with.
+  - In general, we do not support ERC721. However, we may be able to support UniswapV3-like LP tokens, which is a form of ERC721 if minted through the NPM.
 - [ ] Which blockchains will this code be deployed to, and are considered in scope for this audit?
+  - Mantle blockchain
 - [ ] Please list all trusted roles (e.g. operators, slashers, pausers, etc.), the privileges they hold, and any conditions under which privilege escalation is expected/allowable
 - [ ] In the event of a DOS, could you outline a minimum duration after which you would consider a finding to be valid? This question is asked in the context of most systems' capacity to handle DoS attacks gracefully for a certain period.
 - [ ] Is any part of your implementation intended to conform to any EIP's? If yes, please list the contracts in this format: 
-  - `Contract1`: Should comply with `ERC/EIPX`
-  - `Contract2`: Should comply with `ERC/EIPY`
+  - Positions should be `ERC721`.
 
 ## Attack ideas (Where to look for bugs)
-*List specific areas to address - see [this blog post](https://medium.com/code4rena/the-security-council-elections-within-the-arbitrum-dao-a-comprehensive-guide-aa6d001aae60#9adb) for an example*
+
+- Infinite collateralization or borrowing.
+- Malicious custom callbacks that can steal funds, either directly or indirectly (for example, via token approvals)
+- Incorrect interest accrual or debt calculations
+- Bypassing position health check, especially when performing `multicall`
+- Margin Trading Hook - can some series of actions on the hook lead the position to be in a weird state and lose money ? 
+- Wrapped LP Merchant Moe - LP price manipulation.
+
 
 ## Main invariants
-*Describe the project's main invariants (properties that should NEVER EVER be broken).*
+
+- Over-collateralization of the positions
+
 
 ## Scoping Details 
-[ ⭐️ SPONSORS: please confirm/edit the information below. ]
 
 ```
-- If you have a public code repo, please share it here:  
-- How many contracts are in scope?:   
-- Total SLoC for these contracts?:  
-- How many external imports are there?:  
-- How many separate interfaces and struct definitions are there for the contracts within scope?:  
-- Does most of your code generally use composition or inheritance?:   
-- How many external calls?:   
-- What is the overall line coverage percentage provided by your tests?:
-- Is this an upgrade of an existing system?:
-- Check all that apply (e.g. timelock, NFT, AMM, ERC20, rollups, etc.): 
-- Is there a need to understand a separate part of the codebase / get context in order to audit this part of the protocol?:   
-- Please describe required context:   
-- Does it use an oracle?:  
-- Describe any novel or unique curve logic or mathematical models your code uses: 
-- Is this either a fork of or an alternate implementation of another project?:   
-- Does it use a side-chain?:
-- Describe any specific areas you would like addressed:
+- If you have a public code repo, please share it here: -
+- How many contracts are in scope?: 5 new + mitigations & minor changes to previous contracts
+- Total SLoC for these contracts?: 729 new + <100 line diff from part2
+- How many external imports are there?: Many (most are OpenZeppelin's library)
+- How many separate interfaces and struct definitions are there for the contracts within scope?: 30 interfaces, 23 structs
+- Does most of your code generally use composition or inheritance?: Composition   
+- How many external calls?: major one is via InitCore's callback
+- What is the overall line coverage percentage provided by your tests?: 90%+
+- Is this an upgrade of an existing system?: It is a modification of the previous contracts
+- Check all that apply (e.g. timelock, NFT, AMM, ERC20, rollups, etc.): ERC-20 Token, Multi-Chain 
+- Is there a need to understand a separate part of the codebase / get context in order to audit this part of the protocol?: True (merchant moe)  
+- Please describe required context: see documentation above.  
+- Does it use an oracle?: Yes, currently using API3.
+- Describe any novel or unique curve logic or mathematical models your code uses: -
+- Is this either a fork of or an alternate implementation of another project?: False   
+- Does it use a side-chain?: No
+- Describe any specific areas you would like addressed: -
 ```
-
 # Tests
 
-*Provide every step required to build the project from a fresh git clone, as well as steps to run the tests with a gas report.* 
+1. Install Foundry's Forge and ApeWorX's ape.
+- Forge: https://github.com/foundry-rs/forge-std
+- Ape: https://github.com/ApeWorX/ape
 
-*Note: Many wardens run Slither as a first pass for testing.  Please document any known errors with no workaround.* 
+2. Installing libraries via Ape and Forge.
+    ```shell
+    ape plugins install .
+    ape compile
+    forge install foundry-rs/forge-std --no-commit
+    ```
 
-## Miscellaneous
+(To compile the code, you can use either `ape compile` or `forge build` after installing the libraries)
 
-Employees of [SPONSOR NAME] and employees' family members are ineligible to participate in this audit.
+3. Spin up an anvil fork node
+
+    ```shell
+    anvil -f https://rpc.mantle.xyz --chain-id 5000
+    ```
+
+4. Run tests
+
+    ```shell
+    forge test
+    ```
+
+For coverage testing, run the following intead of step 3, and a new window will pop up on your browser. 
+*NOTE: Make sure you have an up-to-date `lcov` installed.*
+
+```shell
+sh run_coverage.sh
+```
