@@ -1,0 +1,16 @@
+[profile.default]
+
+libs = ["node_modules", "lib"]
+test = "tests"
+remappings = [
+  '@forge-std/=lib/forge-std/src/',
+  '@openzeppelin-contracts/=contracts/.cache/OpenZeppelin/v4.9.3',
+  '@openzeppelin-contracts-upgradeable/=contracts/.cache/OpenZeppelin-Upgradeable/v4.9.3',
+]
+solc = "0.8.19"
+
+[fmt]
+quote_style = 'single'
+int_types = 'short'
+
+# See more config options https://github.com/gakonst/foundry/tree/master/config

@@ -1,0 +1,28 @@
+plugins:
+  - name: solidity
+  - name: foundry
+
+dependencies:
+  - name: OpenZeppelin
+    github: OpenZeppelin/openzeppelin-contracts
+    version: 4.9.3
+    config_override:
+      solidity:
+        version: 0.8.19
+  - name: OpenZeppelin-Upgradeable
+    github: OpenZeppelin/openzeppelin-contracts-upgradeable
+    version: 4.9.3
+    config_override:
+      solidity:
+        version: 0.8.19
+  # - name: ForgeStd
+  #   github: foundry-rs/forge-std
+  #   version: 1.7.1
+
+solidity:
+  # evm_version: paris
+  version: 0.8.19
+  import_remapping:
+    # - '@forge-std/=ForgeStd/1.7.1'
+    - "@openzeppelin-contracts/=OpenZeppelin/4.9.3"
+    - "@openzeppelin-contracts-upgradeable/=OpenZeppelin-Upgradeable/4.9.3"
