@@ -1,6 +1,6 @@
 contracts/wrapper/WLpMoeMasterChef.sol
 contracts/hook/MarginTradingHook.sol
-contracts/common/InitErrors.sol
+contracts/common/library/InitErrors.sol
 contracts/helper/swap_helper/MoeSwapHelper.sol
 contracts/hook/BaseMappingIdHook.sol
 contracts/common/library/UncheckedIncrement.sol

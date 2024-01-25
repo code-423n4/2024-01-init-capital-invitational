@@ -98,7 +98,7 @@ Part 1 scope: new contracts
 | ----------- | ----------- |  ----------- |
 | [contracts/wrapper/WLpMoeMasterChef.sol](https://github.com/code-423n4/2024-01-init-capital-invitational/tree/main/contracts/wrapper/WLpMoeMasterChef.sol) | 209 | Wrapped LP for Merchant Moe integration |
 | [contracts/hook/MarginTradingHook.sol](https://github.com/code-423n4/2024-01-init-capital-invitational/tree/main/contracts/hook/MarginTradingHook.sol) | 468 | Hook implementation for margin trading actions |
-| [contracts/common/InitErrors.sol](https://github.com/code-423n4/2024-01-init-capital-invitational/tree/main/contracts/common/Multicall.sol) | 58 (most lines are just trivial constants, which can be ignored) | Error library |
+| [contracts/common/library/InitErrors.sol](https://github.com/code-423n4/2024-01-init-capital-invitational/tree/main/contracts/common/library/InitErrors.sol) | 58 (most lines are just trivial constants, which can be ignored) | Error library |
 | [contracts/helper/swap_helper/MoeSwapHelper.sol](https://github.com/code-423n4/2024-01-init-capital-invitational/tree/main/contracts/helper/swap_helper/MoeSwapHelper.sol) | 33 | Swap helper for Merchant Moe DEX |
 | [contracts/hook/BaseMappingIdHook.sol](https://github.com/code-423n4/2024-01-init-capital-invitational/tree/main/contracts/hook/BaseMappingIdHook.sol) | 21 | Base implementation for hook |
 
