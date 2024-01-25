@@ -12,7 +12,7 @@ import {AccessControlManager} from '../../contracts/common/AccessControlManager.
 import {InitOracle} from '../../contracts/oracle/InitOracle.sol';
 import {Api3OracleReader} from '../../contracts/oracle/Api3OracleReader.sol';
 import {PythOracleReader} from '../../contracts/oracle/PythOracleReader.sol';
-import {IMockOracle, MockOracle, MockInvalidOracle} from '../mock/mockOracle.sol';
+import {IMockOracle, MockOracle, MockInvalidOracle} from '../mock/MockOracle.sol';
 
 contract TestInitOracleFork is Test {
     InitOracle public initOracle;

@@ -1,0 +1,5 @@
+@forge-std/=lib/forge-std/src/
+@openzeppelin-contracts/=contracts/.cache/OpenZeppelin/v4.9.3/
+@openzeppelin-contracts-upgradeable/=contracts/.cache/OpenZeppelin-Upgradeable/v4.9.3/
+ds-test/=lib/forge-std/lib/ds-test/src/
+forge-std/=lib/forge-std/src/
