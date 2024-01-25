@@ -9,7 +9,7 @@ import {ProxyAdmin} from '@openzeppelin-contracts/proxy/transparent/ProxyAdmin.s
 
 import {AccessControlManager} from '../../contracts/common/AccessControlManager.sol';
 import {Api3OracleReader} from '../../contracts/oracle/Api3OracleReader.sol';
-import {IMockOracle, MockOracle, MockInvalidOracle} from '../mock/mockOracle.sol';
+import {IMockOracle, MockOracle, MockInvalidOracle} from '../mock/MockOracle.sol';
 
 contract TestApi3OracleReader is Test {
     Api3OracleReader public api3OracleReader;
